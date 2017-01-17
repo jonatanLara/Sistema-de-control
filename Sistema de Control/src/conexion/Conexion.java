@@ -7,6 +7,7 @@ package conexion;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -20,19 +21,19 @@ import javax.swing.JOptionPane;
  */
 public class Conexion {
     
-    private String bd = "dbcoesicydet";
-    private String login = "usuario";//user
-    private String password = "consejo2016";//contraseña :3306
-    private String url = "jdbc:mysql://192.168.1.64:3306/" + bd;
+    private final String bd = "dbcoesicydet";
+    private final String login = "usuario";//user
+    private final String password = "consejo2016";//contraseña :3306
+    private final String url = "jdbc:mysql://192.168.1.64:3306/" + bd;
     private Connection conn ;
     private Statement sentencia = null;
     private boolean isEmpyConection;
     
     public Conexion(){}
     /**
-     *Devuelve la conexion 
+     * @return Devuelve la conexion
      */
-    public Connection conctarDB(){
+    public Connection conectarDB(){
          conn = null;
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -72,11 +73,37 @@ public class Conexion {
         }
     }
     
-    public void NuevoElemento(){
+    /**
+     * 
+     * @param Tabla de la base de datos
+     * @param datos Elementos agregar
+     */
+    public void NuevoElemento(String Tabla, String datos[]){
+        try {
+            String sql;
+            sql = "INSERT INTO" + Tabla
+                    + "(id, num_oficio, asunto, fecha, destinatario, descripcion, remitente, aneso, img)"
+                    + " VALUES (NULL,?,?,?,?,?,?,?,?)";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            for (int i = 0; i < datos.length; i++) {
+                pst.setString(i, datos[i]);
+            }
+            int n = pst.executeUpdate();
+             if (n>0) {
+                JOptionPane.showMessageDialog(null, "Se agregaron los correctente los datos");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-    public void EditarElemento(){
+    public void EditarElemento(String Tabla, int id, String datos[]){
     }
-    public void BorrarElemento(){
+    public void BorrarElemento(String Tabla, int id){
+        try {
+            sentencia.executeQuery("delete * from "+Tabla+" where id ='" + id + "'");
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /***
